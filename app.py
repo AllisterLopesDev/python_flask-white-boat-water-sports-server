@@ -3,7 +3,7 @@ from flask_marshmallow import Marshmallow
 # from flask_sqlalchemy import SQLAlchemy
 from db import db;
 
-from models.User import User
+from models.user import User
 
 app=Flask(__name__)
 
