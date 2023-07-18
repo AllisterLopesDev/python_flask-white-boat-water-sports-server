@@ -1,15 +1,17 @@
 from flask import Flask, jsonify, request
 from flask_marshmallow import Marshmallow
+from flask_mysqldb import MySQL
 # from flask_sqlalchemy import SQLAlchemy
-from db import db;
+from db import db
 
 from models.user import User
+from models.credential import Credential
 
-app=Flask(__name__)
+app = Flask(__name__)
 
 # CONNECT TO DATABASE
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/advanture_boat_trip'
-# db = SQLAlchemy(app)
+db.init_app(app)
 ma = Marshmallow(app)
 
 
@@ -85,15 +87,15 @@ def inserData():
             'message': 'email and password are required',
             'status': 400}), 400
 
-    existing_user = User.query.filter_by(email=email).first()
+    existing_user = Credential.query.filter_by(email=email).first()
     if existing_user:
         return jsonify({
             'success': False,
             'message': 'email already exists.',
             'status': 410}), 410
     
-    user = User(email=email, password=password)
-    db.session.add(user)
+    user_credential = Credential(email=email, password=password)
+    db.session.add(user_credential)
     db.session.commit()
 
     return jsonify({
