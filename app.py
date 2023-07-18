@@ -51,7 +51,7 @@ def login():
     email = request.json.get("email")
     password = request.json.get("password")
 
-    user = User.query.filter_by(email=email).first()
+    user = Credential.query.filter_by(email=email).first()
 
     # check if user credentials are valid
     if not user or not user.password:
@@ -80,22 +80,49 @@ def login():
 def inserData():
     email = request.json.get('email')
     password = request.json.get('password')
+    firstname = request.json.get('firstname')
+    lastname = request.json.get('lastname')
+    role = request.json.get('role')
 
-    if not email or not password:
-        return jsonify({
-            'success': False,
-            'message': 'email and password are required',
-            'status': 400}), 400
+    if role == 'admin':
+        if not email or not password:
+            return jsonify({
+                'success': False,
+                'message': 'email and password are required',
+                'status': 400}), 400
 
-    existing_user = Credential.query.filter_by(email=email).first()
-    if existing_user:
-        return jsonify({
-            'success': False,
-            'message': 'email already exists.',
-            'status': 410}), 410
-    
-    user_credential = Credential(email=email, password=password)
-    db.session.add(user_credential)
+        existing_user = Credential.query.filter_by(email=email).first()
+        if existing_user:
+            return jsonify({
+                'success': False,
+                'message': 'email already exists.',
+                'status': 410}), 410
+        
+        user_credential = Credential(email=email, password=password)
+        db.session.add(user_credential)
+        db.session.commit()
+    else:
+
+        if not email:
+            return jsonify({
+                'success': False,
+                'message': 'email required',
+                'status': 400}), 400
+
+        existing_user = Credential.query.filter_by(email=email).first()
+        if existing_user:
+            return jsonify({
+                'success': False,
+                'message': 'email already exists.',
+                'status': 410}), 410
+        user_credential = Credential(email=email)
+        db.session.add(user_credential)
+        db.session.commit()
+
+
+
+    user_details = User(first_name=firstname, last_name=lastname, role=role, credential_id=user_credential.id)
+    db.session.add(user_details)
     db.session.commit()
 
     return jsonify({
