@@ -15,7 +15,7 @@ class User(db.Model):
     lastname = db.Column(db.String(45), nullable=False)
     role = db.Column(db.String(45), nullable=False)
     credential_id = db.Column(db.Integer, db.ForeignKey(Credential.id) ,nullable=False)
-    time_stamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 
     # Backreferences to associate with credential objects

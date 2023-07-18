@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_marshmallow import Marshmallow
-# from flask_sqlalchemy import SQLAlchemy
+
 from db import db;
 
 from models.user import User
