@@ -26,7 +26,7 @@ def home():
 
 @app.route("/user", methods=["GET", "POST"])
 def user():
-    users = User.query.all()
+    users = Credential.query.all()
     user_list = []
     for user in users:
         user_list.append({'id': user.id, 'email': user.email, 'password': user.password})
@@ -84,6 +84,7 @@ def inserData():
     lastname = request.json.get('lastname')
     role = request.json.get('role')
 
+
     if role == 'admin':
         if not email or not password:
             return jsonify({
@@ -97,6 +98,12 @@ def inserData():
                 'success': False,
                 'message': 'email already exists.',
                 'status': 410}), 410
+        
+        if not password:
+            return jsonify({
+                'success': False,
+                'message': 'password required',
+                'status': 400}), 400
         
         user_credential = Credential(email=email, password=password)
         db.session.add(user_credential)
@@ -115,15 +122,41 @@ def inserData():
                 'success': False,
                 'message': 'email already exists.',
                 'status': 410}), 410
+        
         user_credential = Credential(email=email)
         db.session.add(user_credential)
         db.session.commit()
 
+    if not firstname:
+        return jsonify({
+            'success': False,
+            'message': 'enter firstname',
+            'status': 400
+        }), 400
+    
+    if not lastname:
+        return jsonify({
+            'success': False,
+            'message': 'enter lastname',
+            'status': 400
+        }), 400
+    
+    if not role:
+        return jsonify({
+            'success': False,
+            'message': 'enter user role',
+            'status': 400
+        }), 400
 
-
-    user_details = User(first_name=firstname, last_name=lastname, role=role, credential_id=user_credential.id)
-    db.session.add(user_details)
-    db.session.commit()
+    if not firstname or not lastname or not role:
+            return jsonify({
+                'success': False,
+                'message': 'firstname , lastname and role are reqired',
+                'status': 400}), 400
+    else:
+        user_details = User(first_name=firstname, last_name=lastname, role=role, credential_id=user_credential.id)
+        db.session.add(user_details)
+        db.session.commit()
 
     return jsonify({
         'success':True,
