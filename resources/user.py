@@ -10,7 +10,6 @@ blue_print = Blueprint("user", __name__)
 
 
 # GET ALL AVAILABLE USERS
-
 @blue_print.route("/user", methods=["GET", "POST"])
 def user():
     users = Credential.query.all()
@@ -19,6 +18,15 @@ def user():
         user_list.append({'id': user.id, 'email': user.email, 'password': user.password})
     return jsonify(user_list)
 
+
+# GET ALL AVAILABLE owners
+@blue_print.route("/user_as_owner", methods=["GET", "POST"])
+def owner():
+    owners = User.query.filter(User.role.like('%owner%'))
+    owner_list = []
+    for user in owners:
+        owner_list.append({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'credential_id':user.credential_id})
+    return jsonify(owner_list)
 
 
 
