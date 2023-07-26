@@ -57,8 +57,32 @@ def booking():
         db.session.add(vehical_order_data)
         db.session.commit()
 
-    return jsonify({
+    
+
+    response_data = {
         'success': True,
         'message': 'Booking done',
-        'status': 200
-    }), 200
+        'status': 200,
+        'result': {
+            'order': {
+                'id': order_details.id,
+                'serial_number': serial_number,
+                'pax': pax,
+                'amount': amount,
+                'date': order_details.created_at.strftime('%Y-%m-%d')
+            },
+            'vehical': {
+                'reg_no': reg_no,
+                'name': name,
+                'contact': contact
+            },
+            'vehical_order': {
+                'id': vehical_order_data.id,
+                'vehical_id': vehical_exist.id if vehical_exist else vehical_details.id,
+                'order_id': vehical_order_data.order_id,
+                'commission': vehical_order_data.commission_amount
+            }
+        }
+    }
+
+    return jsonify(response_data), 200
