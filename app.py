@@ -5,6 +5,8 @@ from db import db
 
 from resources.auth import blue_print as UserAuthBluePrint
 from resources.user import blue_print as UserBluePrint
+from resources.boat import blue_print as BoatBluePrint
+from resources.bookings import blue_print as BookingBluePrint
 
 app = Flask(__name__)
 
@@ -26,6 +28,8 @@ def home():
 # route blueprint from resources
 app.register_blueprint(UserAuthBluePrint)
 app.register_blueprint(UserBluePrint)
+app.register_blueprint(BoatBluePrint)
+app.register_blueprint(BookingBluePrint)
 
 
 
