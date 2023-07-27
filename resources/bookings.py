@@ -86,3 +86,50 @@ def booking():
     }
 
     return jsonify(response_data), 200
+
+
+
+
+
+@blue_print.route("/private_booking", methods=["POST"])
+def privateBooking():
+    pax = request.json.get('pax')
+    amount = request.json.get('amount')
+
+    if not pax or not amount:
+        return jsonify({
+            'success': False,
+            'message': 'fields (pax, amount) are required',
+            'status': 400
+        }), 400
+
+    # Generate the serial number
+    serial_number = random.randint(1000, 9999)
+
+    order_details = Order(serial_no=serial_number, pax=pax, amount=amount)
+    db.session.add(order_details)
+    db.session.commit()
+
+
+    vehical_order_data = VehicalOrder(order_id = order_details.id)
+    db.session.add(vehical_order_data)
+    db.session.commit()
+
+    
+
+    response_data = {
+        'success': True,
+        'message': 'private Booking done',
+        'status': 200,
+        'result': {
+            'order': {
+                'id': order_details.id,
+                'serial_number': serial_number,
+                'pax': pax,
+                'amount': amount,
+                'date': order_details.created_at.strftime('%Y-%m-%d')
+            }
+        }
+    }
+
+    return jsonify(response_data), 200
