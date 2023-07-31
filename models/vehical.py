@@ -11,5 +11,5 @@ class Vehical(db.Model):
     registration_no = db.Column(db.String(45), nullable=False)
     name = db.Column(db.String(45), nullable=False)
     contact = db.Column(db.String(45), nullable=False)
-    commission_amount = db.Column(db.Double, nullable=False)
+    # commission_amount = db.Column(db.Double, nullable=False)//
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
