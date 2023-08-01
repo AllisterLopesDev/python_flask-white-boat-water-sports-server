@@ -31,7 +31,12 @@ def booking():
         commission = commission
 
     # Generate the serial number
-    serial_number = random.randint(1000, 9999)
+    serial_initials = 'AWS'
+    serial_number =serial_initials + str(random.randint(1000, 9999))
+
+    serial_number_exist = Order.query.filter_by(serial_no=serial_number).all
+    if serial_number_exist:
+        serial_number =serial_initials + str(random.randint(1000, 9999))
 
 
     # check if vehical already exist in database
@@ -104,7 +109,8 @@ def privateBooking():
         }), 400
 
     # Generate the serial number
-    serial_number = random.randint(1000, 9999)
+    serial_initials = 'AWS'
+    serial_number = serial_initials + str(random.randint(1000, 9999))
 
     order_details = Order(serial_no=serial_number, pax=pax, amount=amount)
     db.session.add(order_details)
