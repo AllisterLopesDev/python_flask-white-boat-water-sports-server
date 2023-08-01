@@ -38,6 +38,9 @@ def inserData():
     password = request.json.get('password')
     firstname = request.json.get('firstname')
     lastname = request.json.get('lastname')
+    address = request.json.get('address')
+    contact = request.json.get('contact')
+    gender = request.json.get('gender')
     role = request.json.get('role')
 
 
@@ -97,6 +100,27 @@ def inserData():
             'status': 400
         }), 400
     
+    if not address:
+        return jsonify({
+            'success': False,
+            'message': 'enter address',
+            'status': 400
+        }), 400
+    
+    if not contact:
+        return jsonify({
+            'success': False,
+            'message': 'enter contact',
+            'status': 400
+        }), 400
+    
+    if not gender:
+        return jsonify({
+            'success': False,
+            'message': 'enter gender',
+            'status': 400
+        }), 400
+    
     if not role:
         return jsonify({
             'success': False,
@@ -110,7 +134,7 @@ def inserData():
                 'message': 'firstname , lastname and role are reqired',
                 'status': 400}), 400
     else:
-        user_details = User(first_name=firstname, last_name=lastname, role=role, credential_id=user_credential.id)
+        user_details = User(first_name=firstname, last_name=lastname, role=role, address=address, contact=contact, gender=gender, credential_id=user_credential.id)
         db.session.add(user_details)
         db.session.commit()
 
