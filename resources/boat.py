@@ -72,6 +72,9 @@ def getBoatOwners():
             User.credential_id.label('cred_id'),
             User.first_name.label('fname'),
             User.last_name.label('lname'),
+            User.address.label('address'),
+            User.conatct.label('contact'),
+            User.gender.label('gender'),
             User.id.label('userid'),
             Boat.registration_no.label('reg'),
             Boat.id.label('boatid')
@@ -82,11 +85,14 @@ def getBoatOwners():
                 'credential_id': cred_id,
                 'firstname': fname,
                 'lastname': lname,
+                'address': address,
+                'contact': contact,
+                'gender': gender,
                 'userid': userid,
                 'reg': reg,
                 'boatid': boatid
             }
-            for cred_id,fname,lname,userid,reg,boatid in user_boat_info
+            for cred_id,fname,lname,address,contact,gender,userid,reg,boatid in user_boat_info
         ]
 
         return jsonify(result), 200

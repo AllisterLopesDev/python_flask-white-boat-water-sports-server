@@ -25,7 +25,7 @@ def owner():
     owners = User.query.filter(User.role.like('%owner%'))
     owner_list = []
     for user in owners:
-        owner_list.append({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'credential_id':user.credential_id})
+        owner_list.append({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,'address': user.address, 'contact': user.contact, 'gender': user.gender, 'credential_id':user.credential_id})
     return jsonify(owner_list)
 
 
