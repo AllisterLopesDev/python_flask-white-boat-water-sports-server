@@ -8,6 +8,7 @@ from resources.user import blue_print as UserBluePrint
 from resources.boat import blue_print as BoatBluePrint
 from resources.bookings import blue_print as BookingBluePrint
 from resources.report import blue_print as ReportBluePrint
+from resources.commission import blue_print as CommissionBluePrint
 
 app = Flask(__name__)
 
@@ -32,7 +33,7 @@ app.register_blueprint(UserBluePrint)
 app.register_blueprint(BoatBluePrint)
 app.register_blueprint(BookingBluePrint)
 app.register_blueprint(ReportBluePrint)
-
+app.register_blueprint(CommissionBluePrint)
 
 
 if __name__ == '__main__':

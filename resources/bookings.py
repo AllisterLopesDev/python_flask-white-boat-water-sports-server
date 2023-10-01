@@ -94,11 +94,9 @@ def booking():
     return jsonify(response_data), 200
 
 
-
-
-
 @blue_print.route("/private_booking", methods=["POST"])
 def privateBooking():
+
     pax = request.json.get('pax')
     amount = request.json.get('amount')
     payment_method = request.json.get('payment_method')
@@ -141,3 +139,18 @@ def privateBooking():
     }
 
     return jsonify(response_data), 200
+
+
+
+@blue_print.route("/get_order_data",methods=["GET"])
+def getOrderData():
+    order_list =[]
+
+    records = Order.query.all()
+
+    for record in records:
+        order_list.append({'id':record.id,'serial_no':record.serial_no,'amount':record.amount,'pax':record.pax,'payment_method':record.payment_method})
+    return jsonify({
+        'message':'success',
+        'list':order_list
+    })
