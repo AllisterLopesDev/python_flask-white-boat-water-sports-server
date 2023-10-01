@@ -15,3 +15,4 @@ class Order(db.Model):
     pax = db.Column(db.Integer, nullable=False)
     amount = db.Column(db.Double, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    payment_method = db.Column(db.String(45), nullable=False)
