@@ -39,7 +39,6 @@ def unpaidCommission():
         'id':vehical_data.id,
         'regno':vehical_data.registration_no,
         'name':vehical_data.name,
-        'contact':vehical_data.contact
     }
 
     # store response data
