@@ -15,6 +15,7 @@ def booking():
     commission = request.json.get('commission')
     reg_no = request.json.get('reg_no')
     name = request.json.get('name')
+    booking_date = request.json.get('order_dateTime')
     # contact = request.json.get('contact')
     payment_method = request.json.get('payment_method')
 
@@ -22,6 +23,13 @@ def booking():
         return jsonify({
             'success': False,
             'message': 'All fields (pax, amount, reg_no, name) are required',
+            'status': 400
+        }), 400
+    
+    if not payment_method or not booking_date:
+        return jsonify({
+            'success': False,
+            'message': 'fields (payment method, creation date) are required',
             'status': 400
         }), 400
 
@@ -44,7 +52,7 @@ def booking():
     vehical_exist = Vehical.query.filter_by(registration_no=reg_no).first()
 
     if vehical_exist:
-        order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method)
+        order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
         db.session.add(order_details)
         db.session.commit()
 
@@ -53,7 +61,7 @@ def booking():
         db.session.commit()
     else:
         vehical_details = Vehical(registration_no=reg_no, name=name)
-        order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method)
+        order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
     
         db.session.add(order_details)
         db.session.add(vehical_details)
@@ -96,11 +104,12 @@ def privateBooking():
     pax = request.json.get('pax')
     amount = request.json.get('amount')
     payment_method = request.json.get('payment_method')
+    booking_date = request.json.get('order_dateTime')
 
-    if not pax or not amount:
+    if not pax or not amount or not payment_method or not booking_date:
         return jsonify({
             'success': False,
-            'message': 'fields (pax, amount) are required',
+            'message': 'fields (pax, amount, payment method, creation date) are required',
             'status': 400
         }), 400
 
@@ -108,7 +117,7 @@ def privateBooking():
     serial_initials = 'AWS'
     serial_number = serial_initials + str(random.randint(1000, 9999))
 
-    order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method)
+    order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
     db.session.add(order_details)
     db.session.commit()
 
