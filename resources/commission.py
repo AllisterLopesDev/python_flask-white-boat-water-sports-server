@@ -81,17 +81,25 @@ def updateCommissionPaymentStatus():
 # response ----- >  order_details, transport_name,'reg_no'
 @blue_print.route("/get_unpaid_commission", methods=["GET"])
 def getUnpaidCommission():
-    vehical_no = request.args.get('Vehical_no')
+    v_no = request.args.get('Vehical_no')
 
+    if not v_no:
+        return {
+            'status': 400,
+            'message': 'vehical id required'
+        }
     # query
-    records = db.session.query(Vehical.registration_no,Vehical.name, Order.serial_no, Order.created_at, VehicalOrder.payment_status). \
-        join(Vehical).join(Order).filter(Vehical.registration_no.like(f'%{vehical_no}')).filter(VehicalOrder.payment_status == 0).all()
+    records = db.session.query(Vehical.registration_no,Vehical.name, Order.serial_no, Order.created_at,Order.pax, Order.amount,VehicalOrder.commission_amount, VehicalOrder.payment_status).join(Vehical).join(Order).filter(Vehical.registration_no.like(f'%{v_no}')).filter(VehicalOrder.payment_status == 0).all()
     
+    if not records:
+        return {
+            'status': 400,
+            'message': 'no data available'
+        }
+
     record_list  = []
     for record in records:
-        record_list.append({'serial_no': record.serial_no,'created_at':record.created_at , 'commission_payment_status': record.payment_status})    
+        record_list.append({'vehical_no':record.registration_no,'transport_name': record.name,'serial_no': record.serial_no,'created_at':record.created_at , 'commission_payment_status': record.payment_status, 'pax': record.pax, 'commission':record.amount - record.commission_amount})    
 
-    return jsonify({'order_details': record_list,
-                    'transport_name': record.name,
-                    'reg_no': record.registration_no
+    return jsonify({'order_details': record_list
                     })

@@ -49,17 +49,17 @@ def booking():
 
 
     # check if vehical already exist in database
-    vehical_exist = Vehical.query.filter_by(registration_no=reg_no).first()
+    # vehical_exist = Vehical.query.filter_by(registration_no=reg_no).first()
 
-    if vehical_exist:
-        order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
-        db.session.add(order_details)
-        db.session.commit()
+    # if vehical_exist:
+    #     order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
+    #     db.session.add(order_details)
+    #     db.session.commit()
 
-        vehical_order_data = VehicalOrder(vehical_id = vehical_exist.id,order_id = order_details.id, commission_amount = commission)
-        db.session.add(vehical_order_data)
-        db.session.commit()
-    else:
+    #     vehical_order_data = VehicalOrder(vehical_id = vehical_exist.id,order_id = order_details.id, commission_amount = commission)
+    #     db.session.add(vehical_order_data)
+    #     db.session.commit()
+    # else:
         vehical_details = Vehical(registration_no=reg_no, name=name)
         order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
     
@@ -89,7 +89,7 @@ def booking():
             },
             'vehical_order': {
                 'id': vehical_order_data.id,
-                'vehical_id': vehical_exist.id if vehical_exist else vehical_details.id,
+                'vehical_id': vehical_details.id,
                 'order_id': vehical_order_data.order_id,
                 'commission': vehical_order_data.commission_amount
             }
@@ -121,9 +121,6 @@ def privateBooking():
     db.session.add(order_details)
     db.session.commit()
 
-    vehical_order_data = VehicalOrder(order_id = order_details.id)
-    db.session.add(vehical_order_data)
-    db.session.commit()
     response_data = {
         'success': True,
         'message': 'private Booking done',
