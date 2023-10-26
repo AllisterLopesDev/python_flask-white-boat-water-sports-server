@@ -78,7 +78,8 @@ def getSingleDayOrderDetails():
             'message': 'date required'
         }
     try:
-        order_details = Order.query.filter(Order.created_at.like(f'%{date}%')).all()
+        # order_details = Order.query.filter(Order.created_at.like('%{date}%')).all()func.date(Order.created_at)
+        order_details = Order.query.filter(func.date(Order.created_at) == date).all()
         result = [{'id': order.id,'name': order.serial_no,'pax': order.pax,'amount': order.amount,'payment_method': order.payment_method,'created_at': order.created_at} for order in order_details]
         return jsonify(result), 200
 
