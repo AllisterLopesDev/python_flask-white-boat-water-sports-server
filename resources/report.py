@@ -243,9 +243,9 @@ def generate_day_report():
             # total profit if commission is none
             total_profit_amount += amount
         
-        if payment_method == 'upi':
+        if payment_method == 'upi' or payment_method == 'UPI':
             payment_mode['upi'] += amount
-        elif payment_method == 'cash':
+        elif payment_method == 'cash' or payment_method == 'CASH':
             payment_mode['cash'] += amount
 
     response = {
