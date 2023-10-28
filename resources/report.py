@@ -45,24 +45,24 @@ def generateReportBasedOnDate():
     try:
         # Your query for order summary based on the given date
         order_summary = db.session.query(
-            func.date(Order.created_at).label('order_date'),
-            func.sum(Order.pax).label('pax'),
-            func.sum(Order.amount).label('total_amount'),
-            func.sum(VehicalOrder.commission_amount).label('commission')
-        ).join(VehicalOrder, Order.id == VehicalOrder.order_id).group_by(func.date(Order.created_at)).filter(func.date(Order.created_at) == date).all()
+        func.date(Order.created_at).label('order_date'),
+        func.sum(Order.pax).label('pax'),
+        func.sum(Order.amount).label('total_amount'),
+        func.sum(VehicalOrder.commission_amount).label('commission')).join(VehicalOrder, Order.id == VehicalOrder.order_id).\
+        filter(func.date(Order.created_at) == date).\
+        group_by(func.date(Order.created_at)).all()
 
         # Query to get the sum of 'gpay' for the given date
-        gpay_sum = db.session.query(func.sum(Order.amount)).filter(Order.payment_method == 'gpay').scalar()
-        cash_sum = db.session.query(func.sum(Order.amount)).filter(Order.payment_method == 'cash').scalar()
-
+        gpay_sum = db.session.query(func.sum(Order.amount)).filter(Order.payment_method == 'upi', Order.created_at == date).scalar()
+        cash_sum = db.session.query(func.sum(Order.amount)).filter(Order.payment_method == 'cash', Order.created_at == date).scalar()
         result = [
             {
                 'order_date': order_date.strftime('%Y-%m-%d'),
                 'pax': pax,
                 'total_amount': total_amount,
                 'commission': commission,
-                'gpay': gpay_sum,
-                'cash': cash_sum
+                'gpay': 0 if not gpay_sum else gpay_sum,
+                'cash': 0 if not cash_sum else cash_sum
             }
             for order_date, pax, total_amount, commission in order_summary
         ]
