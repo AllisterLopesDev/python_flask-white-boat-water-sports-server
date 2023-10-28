@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from sqlalchemy import func, and_, case
+from sqlalchemy import func, and_, cast, Date
 from db import db
 from models.order import Order
 from models.vehical_order import VehicalOrder
@@ -83,7 +83,7 @@ def getSingleDayOrderDetails():
     try:
         # order_details = Order.query.filter(Order.created_at.like('%{date}%')).all()func.date(Order.created_at)
         order_details = Order.query.filter(func.date(Order.created_at) == date).all()
-        result = [{'id': order.id,'name': order.serial_no,'pax': order.pax,'amount': order.amount,'payment_method': order.payment_method,'created_at': order.created_at} for order in order_details]
+        result = [{'id': order.id,'serial-no': order.serial_no,'pax': order.pax,'amount': order.amount,'payment-method': order.payment_method,'created-at': order.created_at} for order in order_details]
         return jsonify(result), 200
 
     except Exception as e:
@@ -197,7 +197,8 @@ def generate_day_report():
         Order.payment_method,
         Order.created_at
     ).filter(
-        Order.created_at == date
+        #Order.created_at == date
+        cast(Order.created_at, Date) == date
     ).outerjoin(
         VehicalOrder, Order.id == VehicalOrder.order_id
     )
