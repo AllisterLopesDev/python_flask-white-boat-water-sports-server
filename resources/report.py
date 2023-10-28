@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, case
 from db import db
 from models.order import Order
 from models.vehical_order import VehicalOrder
@@ -45,12 +45,12 @@ def generateReportBasedOnDate():
     try:
         # Your query for order summary based on the given date
         order_summary = db.session.query(
-        func.date(Order.created_at).label('order_date'),
-        func.sum(Order.pax).label('pax'),
-        func.sum(Order.amount).label('total_amount'),
-        func.sum(VehicalOrder.commission_amount).label('commission')).join(VehicalOrder, Order.id == VehicalOrder.order_id).\
-        filter(func.date(Order.created_at) == date).\
-        group_by(func.date(Order.created_at)).all()
+
+            func.date(Order.created_at).label('order_date'),
+            func.sum(Order.pax).label('pax'),
+            func.sum(Order.amount).label('total_amount'),
+            func.sum(VehicalOrder.commission_amount).label('commission')
+        ).join(VehicalOrder, Order.id == VehicalOrder.order_id).filter(func.date(Order.created_at) == date).all()
 
         # Query to get the sum of 'gpay' for the given date
         gpay_sum = db.session.query(func.sum(Order.amount)).filter(Order.payment_method == 'upi', Order.created_at == date).scalar()
@@ -175,3 +175,87 @@ def getOrderDetailsOnDate():
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': 'An error occurred while generating the report.'}), 500 
+    
+
+
+@blue_print.route("/day-report", methods=["GET"])
+def generate_day_report():
+    date = request.args.get('date')
+
+    if not date:
+        return jsonify({
+            'message': 'Date parameter is required.',
+            'status': 400,
+            'data': False
+        }), 400
+    
+    # query to filter results by date
+    query = db.session.query(
+        Order.amount,
+        Order.pax,
+        VehicalOrder.commission_amount,
+        Order.payment_method,
+        Order.created_at
+    ).filter(
+        Order.created_at == date
+    ).outerjoin(
+        VehicalOrder, Order.id == VehicalOrder.order_id
+    )
+
+    results = query.all()
+
+    if not results:
+        # No data for the specified date
+        return jsonify({
+            'message': 'No data found for the given date.',
+            'status': 401,
+        }), 401
+
+    payment_mode = {
+        'upi': 0,
+        'cash': 0
+    }
+
+    # Initialize variables
+    total_amount = 0
+    total_commission_amount = 0
+    total_profit_amount = 0
+    total_pax = 0
+    total_orders = 0
+
+    for result in results:
+        total_orders += 1
+        amount = result.amount
+        commission_amount = result.commission_amount
+        payment_method = result.payment_method
+
+        # total pax
+        total_pax += result.pax
+        # total amount
+        total_amount += amount
+        # total commission
+
+        if commission_amount is not None:
+            total_commission_amount += commission_amount
+            # total profit
+            total_profit_amount = total_profit_amount + (amount - commission_amount)
+        else:
+            # total profit if commission is none
+            total_profit_amount += amount
+        
+        if payment_method == 'upi' or payment_method == 'UPI':
+            payment_mode['upi'] += amount
+        elif payment_method == 'cash' or payment_method == 'CASH':
+            payment_mode['cash'] += amount
+
+    response = {
+        'amount': total_amount,
+        'pax': total_pax,
+        'commission': total_commission_amount,
+        'profit': total_profit_amount,
+        'payment-mode': payment_mode,
+        'date': date,
+        'orders': total_orders
+    }
+
+    return jsonify(response), 200
