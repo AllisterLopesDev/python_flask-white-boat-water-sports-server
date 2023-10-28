@@ -39,7 +39,6 @@ def unpaidCommission():
         'id':vehical_data.id,
         'regno':vehical_data.registration_no,
         'name':vehical_data.name,
-        'contact':vehical_data.contact
     }
 
     # store response data
@@ -62,7 +61,6 @@ def updateCommissionPaymentStatus():
     try:
         # condition
         condition = VehicalOrder.vehical_id == Vehical_id
-
         # filter records based on condition
         records = VehicalOrder.query.filter(condition).all()
         temp = []
@@ -70,9 +68,7 @@ def updateCommissionPaymentStatus():
         for record in records:
             record.payment_status=True
             temp.append({'id':record.id, 'order_id':record.order_id,'vehical':record.vehical_id,'commission_amount':record.commission_amount, 'payment_status':record.payment_status})
-
-        db.session.commit()    
-    
+        db.session.commit()        
         return jsonify({
             'status':200,
             'message':'amount paid',
@@ -81,3 +77,29 @@ def updateCommissionPaymentStatus():
     except Exception as e:
         db.session.rollback()
         return str(e),500  
+
+# response ----- >  order_details, transport_name,'reg_no'
+@blue_print.route("/get_unpaid_commission", methods=["GET"])
+def getUnpaidCommission():
+    v_no = request.args.get('Vehical_no')
+
+    if not v_no:
+        return {
+            'status': 400,
+            'message': 'vehical id required'
+        }
+    # query
+    records = db.session.query(Vehical.id,Vehical.registration_no,Vehical.name, Order.serial_no, Order.created_at,Order.pax, Order.amount,VehicalOrder.commission_amount, VehicalOrder.payment_status).join(Vehical).join(Order).filter(Vehical.registration_no.like(f'%{v_no}')).filter(VehicalOrder.payment_status == 0).all()
+    
+    if not records:
+        return {
+            'status': 400,
+            'message': 'no data available'
+        }
+
+    record_list  = []
+    for record in records:
+        record_list.append({'vehical_id':record.id,'vehical_no':record.registration_no,'transport_name': record.name,'serial_no': record.serial_no,'created_at':record.created_at , 'commission_payment_status': record.payment_status, 'pax': record.pax, 'commission':record.amount - record.commission_amount})    
+
+    return jsonify({'order_details': record_list
+                    })

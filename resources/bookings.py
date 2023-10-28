@@ -15,13 +15,21 @@ def booking():
     commission = request.json.get('commission')
     reg_no = request.json.get('reg_no')
     name = request.json.get('name')
-    contact = request.json.get('contact')
+    booking_date = request.json.get('order_dateTime')
+    # contact = request.json.get('contact')
     payment_method = request.json.get('payment_method')
 
-    if not pax or not amount or not reg_no or not name or not contact:
+    if not pax or not amount or not reg_no or not name:
         return jsonify({
             'success': False,
-            'message': 'All fields (pax, amount, reg_no, name, contact) are required',
+            'message': 'All fields (pax, amount, reg_no, name) are required',
+            'status': 400
+        }), 400
+    
+    if not payment_method or not booking_date:
+        return jsonify({
+            'success': False,
+            'message': 'fields (payment method, creation date) are required',
             'status': 400
         }), 400
 
@@ -41,19 +49,19 @@ def booking():
 
 
     # check if vehical already exist in database
-    vehical_exist = Vehical.query.filter_by(registration_no=reg_no).first()
+    # vehical_exist = Vehical.query.filter_by(registration_no=reg_no).first()
 
-    if vehical_exist:
-        order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method)
-        db.session.add(order_details)
-        db.session.commit()
+    # if vehical_exist:
+    #     order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
+    #     db.session.add(order_details)
+    #     db.session.commit()
 
-        vehical_order_data = VehicalOrder(vehical_id = vehical_exist.id,order_id = order_details.id, commission_amount = commission)
-        db.session.add(vehical_order_data)
-        db.session.commit()
-    else:
-        vehical_details = Vehical(registration_no=reg_no, name=name, contact=contact)
-        order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method)
+    #     vehical_order_data = VehicalOrder(vehical_id = vehical_exist.id,order_id = order_details.id, commission_amount = commission)
+    #     db.session.add(vehical_order_data)
+    #     db.session.commit()
+    # else:
+        vehical_details = Vehical(registration_no=reg_no, name=name)
+        order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
     
         db.session.add(order_details)
         db.session.add(vehical_details)
@@ -62,8 +70,6 @@ def booking():
         vehical_order_data = VehicalOrder(vehical_id = vehical_details.id,order_id = order_details.id, commission_amount = commission)
         db.session.add(vehical_order_data)
         db.session.commit()
-
-    
 
     response_data = {
         'success': True,
@@ -79,18 +85,16 @@ def booking():
             },
             'vehical': {
                 'reg_no': reg_no,
-                'name': name,
-                'contact': contact
+                'name': name
             },
             'vehical_order': {
                 'id': vehical_order_data.id,
-                'vehical_id': vehical_exist.id if vehical_exist else vehical_details.id,
+                'vehical_id': vehical_details.id,
                 'order_id': vehical_order_data.order_id,
                 'commission': vehical_order_data.commission_amount
             }
         }
     }
-
     return jsonify(response_data), 200
 
 
@@ -100,11 +104,12 @@ def privateBooking():
     pax = request.json.get('pax')
     amount = request.json.get('amount')
     payment_method = request.json.get('payment_method')
+    booking_date = request.json.get('order_dateTime')
 
-    if not pax or not amount:
+    if not pax or not amount or not payment_method or not booking_date:
         return jsonify({
             'success': False,
-            'message': 'fields (pax, amount) are required',
+            'message': 'fields (pax, amount, payment method, creation date) are required',
             'status': 400
         }), 400
 
@@ -112,16 +117,9 @@ def privateBooking():
     serial_initials = 'AWS'
     serial_number = serial_initials + str(random.randint(1000, 9999))
 
-    order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method)
+    order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
     db.session.add(order_details)
     db.session.commit()
-
-
-    vehical_order_data = VehicalOrder(order_id = order_details.id)
-    db.session.add(vehical_order_data)
-    db.session.commit()
-
-    
 
     response_data = {
         'success': True,
@@ -145,9 +143,7 @@ def privateBooking():
 @blue_print.route("/get_order_data",methods=["GET"])
 def getOrderData():
     order_list =[]
-
     records = Order.query.all()
-
     for record in records:
         order_list.append({'id':record.id,'serial_no':record.serial_no,'amount':record.amount,'pax':record.pax,'payment_method':record.payment_method})
     return jsonify({
