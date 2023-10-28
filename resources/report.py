@@ -49,7 +49,7 @@ def generateReportBasedOnDate():
             func.sum(Order.pax).label('pax'),
             func.sum(Order.amount).label('total_amount'),
             func.sum(VehicalOrder.commission_amount).label('commission')
-        ).join(VehicalOrder, Order.id == VehicalOrder.order_id).group_by(func.date(Order.created_at)).filter(func.date(Order.created_at) == date).all()
+        ).join(VehicalOrder, Order.id == VehicalOrder.order_id).filter(func.date(Order.created_at) == date).all()
 
         # Query to get the sum of 'gpay' for the given date
         gpay_sum = db.session.query(func.sum(Order.amount)).filter(Order.payment_method == 'gpay').scalar()
