@@ -10,6 +10,7 @@ from resources.bookings import blue_print as BookingBluePrint
 from resources.report import blue_print as ReportBluePrint
 from resources.commission import blue_print as CommissionBluePrint
 from resources.vehical_data import blue_print as VehicalBluePrint
+from resources.delete import blue_print as DeleteOrderBluePrint
 
 app = Flask(__name__)
 
@@ -36,6 +37,7 @@ app.register_blueprint(BookingBluePrint)
 app.register_blueprint(ReportBluePrint)
 app.register_blueprint(CommissionBluePrint)
 app.register_blueprint(VehicalBluePrint)
+app.register_blueprint(DeleteOrderBluePrint)
 
 
 if __name__ == '__main__':

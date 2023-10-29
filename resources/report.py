@@ -4,6 +4,8 @@ from db import db
 from models.order import Order
 from models.vehical_order import VehicalOrder
 
+from datetime import datetime, timedelta
+
 blue_print = Blueprint("report", __name__)
 
 # route to get report of all orders
@@ -135,46 +137,92 @@ def generateReportBasedOnDates():
 def getOrderDetailsOnDate():
     startDate = request.args.get('firstdate')
     endDate = request.args.get('lastdate')
-    if not startDate:
-        return {
+
+    if not startDate or not endDate:
+        return jsonify({
             'status': 400,
-            'message': 'start date required'
-        }
-    
-    if not endDate:
-        return {
-            'status': 400,
-            'message': 'end date required'
-        }
-    
+            'message': 'Both start date and end date are required.'
+        })
+
     try:
-        # order_datails = Order.query.filter(and_(
-        #     Order.created_at >= startDate,
-        #     Order.created_at <= endDate
-        # )).all()
+        # Convert the start and end date strings to datetime objects
+        startDate = datetime.strptime(startDate, "%Y-%m-%d")
+        endDate = datetime.strptime(endDate, "%Y-%m-%d")
 
-        # order_list = [{'id': order.id,'name': order.serial_no,'pax': order.pax,'amount': order.amount,'payment_method': order.payment_method,'created_at': order.created_at} for order in order_datails]
-        # return jsonify(order_list), 200
+        date_list_data = []
 
-        query = db.session.query(
-            func.date(Order.created_at).label('order_date'),
-            func.count(Order.id).label('no_of_orders'),
-            func.sum(Order.amount).label('income'),
-            func.sum(VehicalOrder.commission_amount).label('commission_amount')
-        ).join(VehicalOrder, Order.id == VehicalOrder.order_id).filter(func.date(Order.created_at).between(startDate, endDate)).group_by(func.date(Order.created_at)).all()
+        while startDate <= endDate:
 
-        result = []
-        for row in query:
-            result.append({
-                'order_date': row.order_date,
-                'no_of_orders': row.no_of_orders,
-                'income': row.income,
-                'commission_amount': row.commission_amount,
-                'profit': row.income-row.commission_amount
-            })
-        return jsonify(result), 200
+            # Initialize variables
+            total_amount = 0
+            total_commission_amount = 0
+            total_profit_amount = 0
+            total_pax = 0
+            total_orders = 0
+            # Query to filter results by date
+            query = db.session.query(
+                Order.amount,
+                Order.pax,
+                VehicalOrder.commission_amount,
+                VehicalOrder.payment_status,
+                Order.payment_method,
+                Order.created_at
+            ).filter(
+                Order.created_at == startDate
+            ).outerjoin(
+                VehicalOrder, Order.id == VehicalOrder.order_id
+            )
+
+            results = query.all()
+
+            payment_mode = {
+                'upi': 0,
+                'cash': 0
+            }
+
+            for result in results:
+                total_orders += 1
+                amount = result.amount
+                commission_amount = result.commission_amount
+                payment_method = result.payment_method
+                payment_status = result.payment_status
+
+                # Total pax
+                total_pax += result.pax
+                # Total amount
+                total_amount += amount
+
+                if commission_amount is not None and payment_status == 1:
+                    total_commission_amount += commission_amount
+                    # Total profit
+                    total_profit_amount = total_profit_amount + (amount - commission_amount)
+                else:
+                    # Total profit if commission is None or payment status is 0
+                    total_profit_amount += amount
+
+                if payment_method.lower() == 'upi':
+                    payment_mode['upi'] += amount
+                elif payment_method.lower() == 'cash':
+                    payment_mode['cash'] += amount
+
+            response = {
+                'amount': total_amount,
+                'pax': total_pax,
+                'commission': total_commission_amount,
+                'profit': total_profit_amount,
+                'payment-mode': payment_mode,
+                'date': startDate.strftime("%Y-%m-%d"),
+                'orders': total_orders
+            }
+            
+            if total_pax is not 0 and total_orders is not 0 :
+                date_list_data.append(response)
+
+            startDate += timedelta(days=1)
+
+        return jsonify(date_list_data), 200
     except Exception as e:
-        return jsonify({'error': 'An error occurred while generating the report.'}), 500 
+        return jsonify({'error': 'An error occurred while generating the report.'}), 500
     
 
 
