@@ -19,10 +19,10 @@ def booking():
     # contact = request.json.get('contact')
     payment_method = request.json.get('payment_method')
 
-    if not pax or not amount or not reg_no or not name:
+    if not pax or not amount or not reg_no:
         return jsonify({
             'success': False,
-            'message': 'All fields (pax, amount, reg_no, name) are required',
+            'message': 'All fields (pax, amount, reg_no) are required',
             'status': 400
         }), 400
     
@@ -43,23 +43,11 @@ def booking():
     serial_initials = 'AWS'
     serial_number =serial_initials + str(random.randint(1000, 9999))
 
+    # check if serial no exist in database
     serial_number_exist = Order.query.filter_by(serial_no=serial_number).all
     if serial_number_exist:
         serial_number =serial_initials + str(random.randint(1000, 9999))
 
-
-    # check if vehical already exist in database
-    # vehical_exist = Vehical.query.filter_by(registration_no=reg_no).first()
-
-    # if vehical_exist:
-    #     order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
-    #     db.session.add(order_details)
-    #     db.session.commit()
-
-    #     vehical_order_data = VehicalOrder(vehical_id = vehical_exist.id,order_id = order_details.id, commission_amount = commission)
-    #     db.session.add(vehical_order_data)
-    #     db.session.commit()
-    # else:
         vehical_details = Vehical(registration_no=reg_no, name=name)
         order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
     
@@ -71,6 +59,7 @@ def booking():
         db.session.add(vehical_order_data)
         db.session.commit()
 
+    #  response
     response_data = {
         'success': True,
         'message': 'Booking done',
