@@ -194,6 +194,7 @@ def generate_day_report():
         Order.amount,
         Order.pax,
         VehicalOrder.commission_amount,
+        VehicalOrder.payment_status,
         Order.payment_method,
         Order.created_at
     ).filter(
@@ -228,6 +229,7 @@ def generate_day_report():
         amount = result.amount
         commission_amount = result.commission_amount
         payment_method = result.payment_method
+        payment_status = result.payment_status
 
         # total pax
         total_pax += result.pax
@@ -235,12 +237,12 @@ def generate_day_report():
         total_amount += amount
         # total commission
 
-        if commission_amount is not None:
+        if commission_amount is not None and payment_status is 1:
             total_commission_amount += commission_amount
             # total profit
             total_profit_amount = total_profit_amount + (amount - commission_amount)
         else:
-            # total profit if commission is none
+            # total profit if commission is none or payment status is 0
             total_profit_amount += amount
         
         if payment_method == 'upi' or payment_method == 'UPI':
