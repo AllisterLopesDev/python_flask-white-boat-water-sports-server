@@ -150,6 +150,17 @@ def getOrderDetailsOnDate():
         endDate = datetime.strptime(endDate, "%Y-%m-%d")
 
         date_list_data = []
+        final_profit = 0
+        final_commission = 0
+        final_order_amount = 0
+        pax_count = 0
+        order_count = 0
+
+        overall_payment_mode = {
+                'upi': 0,
+                'cash': 0
+            }
+
 
         while startDate <= endDate:
 
@@ -215,12 +226,28 @@ def getOrderDetailsOnDate():
                 'orders': total_orders
             }
             
+            final_profit += total_profit_amount
+            final_commission += total_commission_amount
+            final_order_amount += total_amount
+            pax_count += total_pax
+            order_count += total_orders
+            overall_payment_mode['upi'] += payment_mode['upi']
+            overall_payment_mode['cash'] += payment_mode['cash']
+
+            
             if total_pax is not 0 and total_orders is not 0 :
                 date_list_data.append(response)
 
             startDate += timedelta(days=1)
 
-        return jsonify(date_list_data), 200
+        return jsonify({'list' : date_list_data,
+                        'final_profit': final_profit,
+                        'final_commission': final_commission,
+                        'final_amount': final_order_amount,
+                        'pax_count': pax_count,
+                        'order_count': order_count,
+                        'overall_payment_mode': overall_payment_mode
+                        }), 200
     except Exception as e:
         return jsonify({'error': 'An error occurred while generating the report.'}), 500
     
