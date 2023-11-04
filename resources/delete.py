@@ -16,9 +16,17 @@ def orderDetails():
                 'success': False,
                 'message': 'ticket_no required',
                 'status': 400}), 400
-    
-    
-    return
+    vehical_order_info = db.session.query(VehicalOrder.id, VehicalOrder.vehical_id, VehicalOrder.order_id, VehicalOrder.commission_amount, VehicalOrder.payment_status)\
+        .filter(VehicalOrder.id == (db.session.query(Order.id).filter(Order.serial_no == 'AWS1208').subquery())).first()
+
+    result = {
+        'id': vehical_order_info[0],
+        'vehical_id': vehical_order_info[1],
+        'order_id': vehical_order_info[2],
+        'commission_amount': vehical_order_info[3],
+        'payment_status': vehical_order_info[4]
+    }
+    return jsonify(result)
 
 # delete a order api
 @blue_print.route('/delete_order/<int:order_id>', methods=['DELETE'])
