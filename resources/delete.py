@@ -8,37 +8,28 @@ from models.vehical_order import VehicalOrder
 
 blue_print = Blueprint("delete_data", __name__)
 
-# delete a order api
-
-@blue_print.route("/delete_order/<string:serial_no>", methods=["GET"])
-def deleteOrderData(serial_no):
-
-    ticket_no = request.json.get(serial_no)
-    # initialize variable
-    order_id = 0
-
+@blue_print.route('/get_order_details', methods=['GET'])
+def orderDetails():
+    ticket_no = request.args.get('serial_no')
     if not ticket_no:
         return jsonify({
-            'success': False,
-            'message': 'ticket_no. is required',
-            'status': 400
-        }), 400
-    
-    order_record = Order.query.filter_by(serial_no=serial_no).first()
-    if order_record is not None:
-        order_id = order_record.id
+                'success': False,
+                'message': 'ticket_no required',
+                'status': 400}), 400
+    vehical_order_info = db.session.query(VehicalOrder.id, VehicalOrder.vehical_id, VehicalOrder.order_id, VehicalOrder.commission_amount, VehicalOrder.payment_status)\
+        .filter(VehicalOrder.id == (db.session.query(Order.id).filter(Order.serial_no == 'AWS1208').subquery())).first()
 
-    
-    
-    # try:
+    result = {
+        'id': vehical_order_info[0],
+        'vehical_id': vehical_order_info[1],
+        'order_id': vehical_order_info[2],
+        'commission_amount': vehical_order_info[3],
+        'payment_status': vehical_order_info[4]
+    }
+    return jsonify(result)
 
-
-
-        
-
-    # except Exception as e:
-    #     return jsonify({'error': 'An error occurred while generating the report.'}), 500
-
-    return jsonify({
-        'order_id': order_id,
-        }), 200
+# delete a order api
+@blue_print.route('/delete_order/<int:order_id>', methods=['DELETE'])
+def delete_order(order_id):
+    # Your delete logic here
+    return jsonify({'message': f'Deleted order with ID {order_id}'})

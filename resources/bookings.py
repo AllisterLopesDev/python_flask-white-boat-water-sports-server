@@ -70,6 +70,7 @@ def booking():
                 'serial_number': serial_number,
                 'pax': pax,
                 'amount': amount,
+                'payment-mode': payment_method,
                 'date': order_details.created_at.strftime('%Y-%m-%d')
             },
             'vehical': {
@@ -119,6 +120,7 @@ def privateBooking():
                 'id': order_details.id,
                 'serial_number': serial_number,
                 'pax': pax,
+                'payment-mode': payment_method,
                 'amount': amount,
                 'date': order_details.created_at.strftime('%Y-%m-%d')
             }
