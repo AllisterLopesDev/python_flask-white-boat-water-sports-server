@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 
 # CONNECT TO DATABASE
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/advanture_boat_trip'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://admin:root1234@aws-dev-db.c22cx4lzva30.us-east-2.rds.amazonaws.com/advanture_boat_trip'
 db.init_app(app)
 ma = Marshmallow(app)
 
