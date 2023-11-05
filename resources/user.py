@@ -142,3 +142,49 @@ def inserData():
         'success':True,
         'message': 'user added',
         'status': 200}), 200
+
+
+
+@blue_print.route("/update_account_password", methods=["PUT"])
+def updateAccountPassword():
+    userId = request.args.get('user_id')
+    credId = request.args.get('Credential_id')
+    newPassword = request.args.get('new_password')
+
+    if not credId or not newPassword:
+        return jsonify({
+        'success':False,
+        'message': 'Credential_id and password required',
+        'status': 400}), 400
+    
+    try:
+        userExist = Credential.query.filter_by(id=credId).first()
+        if userExist:
+            # check if new password is equal to old password
+            if newPassword == userExist.password:
+                return jsonify({
+                    'success':False,
+                    'message': 'new password cannot be same',
+                    'status': 400}), 400
+            else:
+            # condition
+                # Update the user's password
+                userExist.password = newPassword
+                db.session.commit()
+                # reponse
+                return jsonify({
+                    'success':True,
+                    'message': 'passowrd changes successfully',
+                    'status': 200}), 200
+
+        if not userExist:
+            return jsonify({
+                    'success':False,
+                    'message': 'user doesnot exist',
+                    'status': 400}), 400
+
+    
+    except Exception as e:
+        db.session.rollback()
+        return str(e), 500
+
