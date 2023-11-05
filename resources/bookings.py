@@ -131,13 +131,41 @@ def privateBooking():
 
 
 
-@blue_print.route("/get_order_data",methods=["GET"])
+@blue_print.route("/get_all_orders",methods=["GET"])
 def getOrderData():
-    order_list =[]
+    order_details =[]
+    # vehical_order_details = {}
+    # vehical_details = []
     records = Order.query.all()
     for record in records:
-        order_list.append({'id':record.id,'serial_no':record.serial_no,'amount':record.amount,'pax':record.pax,'payment_method':record.payment_method})
-    return jsonify({
-        'message':'success',
-        'list':order_list
-    })
+        order_data={'id':record.id,
+                'serial_no':record.serial_no,
+                'amount':record.amount,
+                'pax':record.pax,
+                'payment_method':record.payment_method}
+        # check if orderid exist in vehical_order
+        verhical_order_exist = VehicalOrder.query.filter_by(order_id=record.id).first()
+        if verhical_order_exist:
+            vehical_order_details = {
+            'id':verhical_order_exist.id,
+            'commission_amount':verhical_order_exist.commission_amount,
+            'payment_status':verhical_order_exist.payment_status}
+            
+            # check if vehical_id exist in vehical
+            vehical_exist = Vehical.query.filter_by(id=verhical_order_exist.vehical_id).first()
+            if vehical_exist:
+                vehical_details = {
+                'id':vehical_exist.id,
+                'vehical_name':vehical_exist.name,
+                'reg_no':vehical_exist.registration_no,
+                'created_at':vehical_exist.created_at  
+                }
+                order_details.append({'order_details':order_data,
+                                    'vehical_order_data': vehical_order_details,
+                                    'vehiacal_data': vehical_details})
+
+        else:
+            order_details.append({'order_details':order_data})        
+
+
+    return jsonify(order_details)
