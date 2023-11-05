@@ -2,6 +2,7 @@ from flask import Blueprint, app, jsonify, request;
 
 from db import db
 from models.credential import Credential
+from models.user import User
 
 blue_print = Blueprint("auth", __name__)
 
@@ -19,16 +20,26 @@ def login():
     password = request.json.get("password")
 
     user = Credential.query.filter_by(email=email).first()
+    if user:
+        userExist = User.query.filter_by(credential_id=user.id).first()
+        # user data
+        user_data = {
+        'credential_id':user.id,
+        'email': user.email,
+        'user_id': userExist.id,
+        'first_name': userExist.first_name,
+        'last_name': userExist.last_name,
+        'contact': userExist.contact,
+        'email': user.email,
+        }
+        
 
     # check if user credentials are valid
     if not user or not user.password:
         return {"status": "401",
                 "message": "invalid email or password"}, 401
 
-    # user data
-    user_data = {
-        'email': user.email,
-    }
+    
 
     # api response
     return {"status": "200",
