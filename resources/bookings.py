@@ -35,9 +35,11 @@ def booking():
 
     # calculate commission
     if not commission:
-        commission = (50 / 100) * amount
+        commission = pax * 150
     else:
         commission = commission
+
+    
 
     # Generate the serial number
     serial_initials = 'AWS'
