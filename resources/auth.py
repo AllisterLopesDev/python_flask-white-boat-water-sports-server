@@ -22,16 +22,27 @@ def login():
     user = Credential.query.filter_by(email=email).first()
     if user:
         userExist = User.query.filter_by(credential_id=user.id).first()
-        # user data
+        ## user data
         user_data = {
-        'credential_id':user.id,
-        'email': user.email,
-        'user_id': userExist.id,
+        'id': userExist.id,
         'first_name': userExist.first_name,
         'last_name': userExist.last_name,
         'contact': userExist.contact,
-        'email': user.email,
         }
+        credential_data = {
+                'id':user.id,
+                'email':user.email,
+                'password':user.password,
+                'initial_login':user.initial_login
+            }
+        if user.initial_login == 0:
+            return {"status": "201",
+            "message": "Password Change Required",
+            "credential": credential_data,
+            "user":user_data
+            }, 200
+        
+        
         
 
     # check if user credentials are valid
@@ -45,4 +56,5 @@ def login():
     return {"status": "200",
             "message": "login successful",
             "user": user_data,
+            "credential":credential_data
             }, 200

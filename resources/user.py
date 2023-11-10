@@ -170,6 +170,7 @@ def updateAccountPassword():
             # condition
                 # Update the user's password
                 userExist.password = newPassword
+                userExist.initial_login = 1
                 db.session.commit()
                 # reponse
                 return jsonify({
