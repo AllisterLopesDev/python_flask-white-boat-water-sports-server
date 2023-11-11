@@ -28,6 +28,7 @@ def login():
         'first_name': userExist.first_name,
         'last_name': userExist.last_name,
         'contact': userExist.contact,
+        'role': userExist.role
         }
         credential_data = {
                 'id':user.id,
