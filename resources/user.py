@@ -82,7 +82,12 @@ def inserData():
                 'message': 'email already exists.',
                 'status': 410}), 410
         
-        user_credential = Credential(email=email)
+        # user_credential = Credential(email=email)
+        # I dont know why check is done at line 70 which follows else
+        # and only email is accepted and not password
+        # please justify and un comment line 85 and remove line 90
+        # I have commented out line 85
+        user_credential = Credential(email=email, password=password)
         db.session.add(user_credential)
         db.session.commit()
 
