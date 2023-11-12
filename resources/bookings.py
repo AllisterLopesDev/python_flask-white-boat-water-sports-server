@@ -5,6 +5,7 @@ from db import db
 from models.order import Order
 from models.vehical import Vehical
 from models.vehical_order import VehicalOrder
+from datetime import date
 
 blue_print = Blueprint("booking", __name__)
 
@@ -39,10 +40,17 @@ def booking():
     else:
         commission = commission
 
+# get current date
+    today = date.today()
+    today_date = today.day
+    today_month = today.month
+    today_year = today.year % 100
+    date_value = str(today_date)+str(today_month)+str(today_year)
+
     
 
     # Generate the serial number
-    serial_initials = 'AWS'
+    serial_initials = 'AWS' +date_value
     serial_number =serial_initials + str(random.randint(1000, 9999))
 
     # check if serial no exist in database
@@ -104,9 +112,16 @@ def privateBooking():
             'message': 'fields (pax, amount, payment method, creation date) are required',
             'status': 400
         }), 400
+    
+    # get current date
+    today = date.today()
+    today_date = today.day
+    today_month = today.month
+    today_year = today.year % 100
+    date_value = str(today_date)+str(today_month)+str(today_year)
 
     # Generate the serial number
-    serial_initials = 'AWS'
+    serial_initials = 'AWS'+date_value
     serial_number = serial_initials + str(random.randint(1000, 9999))
 
     order_details = Order(serial_no=serial_number, pax=pax, amount=amount, payment_method=payment_method, created_at = booking_date)
