@@ -54,25 +54,37 @@ def unpaidCommission():
 
 @blue_print.route("/update_commisssion_payment_status", methods=["PUT"])
 def updateCommissionPaymentStatus():
-    Vehical_order_id = request.args.get('Vehical_order_id')
-    order_id = request.args.get('order_id')
     Vehical_id = request.args.get('Vehical_id')
+    contact_no = request.json.get('contact')
 
     try:
         # condition
         condition = VehicalOrder.vehical_id == Vehical_id
-        # filter records based on condition
+       # filter records based on condition
         records = VehicalOrder.query.filter(condition).all()
         temp = []
+        vehical_order_data = []
+        temp_vehical_id = 0
         # update selected records
         for record in records:
             record.payment_status=True
             temp.append({'id':record.id, 'order_id':record.order_id,'vehical':record.vehical_id,'commission_amount':record.commission_amount, 'payment_status':record.payment_status})
+            
+            temp_vehical_id = record.vehical_id
+            filter_record_condition = Vehical.id == temp_vehical_id
+            # filter record based on condition
+            filter_vehical_data = Vehical.query.filter(filter_record_condition).all()
+            for vehical in filter_vehical_data:
+                vehical.contact = contact_no
+                vehical_order_data.append({'id':vehical.id,'registration_no':vehical.registration_no,'name':vehical.name,'contact':vehical.contact,'created_at':vehical.created_at})
+
+
         db.session.commit()        
         return jsonify({
             'status':200,
             'message':'amount paid',
-            'list':temp
+            'vehical_order_list':temp,
+            'vehical_data':vehical_order_data
         }),200
     except Exception as e:
         db.session.rollback()
