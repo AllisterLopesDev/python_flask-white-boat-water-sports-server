@@ -111,7 +111,7 @@ def getUnpaidCommission():
 
     record_list  = []
     for record in records:
-        record_list.append({'vehical_id':record.id,'vehical_no':record.registration_no,'transport_name': record.name,'serial_no': record.serial_no,'created_at':record.created_at , 'commission_payment_status': record.payment_status, 'pax': record.pax, 'commission':record.amount - record.commission_amount})    
+        record_list.append({'vehical_id':record.id,'vehical_no':record.registration_no,'transport_name': record.name,'serial_no': record.serial_no,'created_at':record.created_at , 'commission_payment_status': record.payment_status, 'pax': record.pax, 'commission':record.commission_amount})    
 
     return jsonify({'order_details': record_list
                     })
