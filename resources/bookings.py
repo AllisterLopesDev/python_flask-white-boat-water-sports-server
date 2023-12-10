@@ -19,6 +19,7 @@ def booking():
     booking_date = request.json.get('order_dateTime')
     # contact = request.json.get('contact')
     payment_method = request.json.get('payment_method')
+    discount_flag = request.json.get('discount_flag')
 
     if not pax or not amount or not reg_no:
         return jsonify({
@@ -36,7 +37,10 @@ def booking():
 
     # calculate commission
     if not commission:
-        commission = pax * 150
+        if discount_flag:
+            commission = pax * 100
+        else:
+            commission = pax * 150
     else:
         commission = commission
 
